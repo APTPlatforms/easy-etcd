@@ -1,0 +1,46 @@
+version: "2.1"
+
+# The labels used in this sample work very well for Rancher deployments.
+# The important part is to ensure that you're running your cluster members
+# in different failure domains (you decide what you can tolerate) so you
+# don't lose all members of the cluster simultaneously. Don't forget to backup
+# your data periodically.
+
+services:
+    infra0:
+        image: aptplatforms/easy-etcd:latest
+        environment:
+            ETCD_NAME:                  infra0
+            ETCD_INITIAL_CLUSTER_TOKEN: special-token
+        labels:
+            - io.rancher.scheduler.affinity:host_label=host_id=host0
+        volumes:
+            - /data
+
+    infra1:
+        image: aptplatforms/easy-etcd:latest
+        environment:
+            ETCD_NAME:                  infra1
+            CLUSTER_LEAD:               infra0
+            ETCD_INITIAL_CLUSTER_TOKEN: special-token
+        labels:
+            - io.rancher.scheduler.affinity:host_label=host_id=host1
+        volumes:
+            - /data
+        depends_on:
+            infra0:
+                condition: service_healthy
+
+    infra2:
+        image: aptplatforms/easy-etcd:latest
+        environment:
+            ETCD_NAME:                  infra2
+            CLUSTER_LEAD:               infra0
+            ETCD_INITIAL_CLUSTER_TOKEN: special-token
+        labels:
+            - io.rancher.scheduler.affinity:host_label=host_id=host2
+        volumes:
+            - /data
+        depends_on:
+            infra0:
+                condition: service_healthy
