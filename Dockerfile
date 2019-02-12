@@ -1,4 +1,4 @@
-FROM quay.io/coreos/etcd:v3.3.8
+FROM quay.io/coreos/etcd:v3.3.12
 LABEL maintainer="Chris Cosby <chris.cosby@aptplatforms.com>"
 
 RUN apk update \
@@ -22,4 +22,5 @@ COPY boot.sh /boot.sh
 EXPOSE $CLIENT_PORT $PEER_PORT
 VOLUME $ETCD_DATA_DIR
 
-CMD ["/sbin/tini", "--", "/bin/bash", "/boot.sh"]
+ENTRYPOINT ["/sbin/tini", "-v", "--"]
+CMD ["/bin/bash", "/boot.sh"]
